@@ -14,7 +14,8 @@
 	<name>retailclient</name>
 	<description>Retail Clients management Microservice</description>
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
+		<spring-cloud.version>2021.0.1</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -51,7 +52,25 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-config-server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+			<version>3.1.1</version>
+		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
