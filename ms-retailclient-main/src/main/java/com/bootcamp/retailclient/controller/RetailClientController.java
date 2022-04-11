@@ -26,6 +26,7 @@ public class RetailClientController {
         return service.findAll();
     }
     
+    /**SE CAMBIA A TIPO DE DATO MONO YA QUE RETORNA SOLO UN REGISTRO*/
     @GetMapping("/find/{document}")
     public Mono<RetailClient> findByDocumentId(@PathVariable("document") String document){
     	Mono<RetailClient> retclnt = dao.findById(document);

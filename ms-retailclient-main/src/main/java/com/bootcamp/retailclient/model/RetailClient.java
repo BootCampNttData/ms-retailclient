@@ -19,6 +19,7 @@ public class RetailClient {
     private String maritalStatus;
     private String gender;
     
+    /**SE AÑADEN CONSTRUCTORES*/
 	public RetailClient() {}
     
 	public RetailClient(String name, String lastName, String documentId, String documentType, String address,

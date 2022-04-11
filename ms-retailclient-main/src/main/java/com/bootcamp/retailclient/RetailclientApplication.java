@@ -34,8 +34,6 @@ public class RetailclientApplication implements CommandLineRunner {
 		mongoTemplate.dropCollection("retailclient")
 		.subscribe();
 		
-	    /*String name; String lastName; String documentId; String documentType;
-	    String address; String phone; String maritalStatus; String gender;*/
 		Flux.just(new RetailClient("Juan","Alejo","74589814","DNI","CALLE 123","998885509","Casado","Masculino"),
 				new RetailClient("Jaison","Juárez","45636693","DNI","CALLE 456","987958800","Soltero","Masculino"),
 				new RetailClient("Roberto","Vargas","41236587","DNI","CALLE 587","965874411","Casado","Masculino"),
