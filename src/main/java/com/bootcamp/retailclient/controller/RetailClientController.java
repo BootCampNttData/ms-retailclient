@@ -1,6 +1,5 @@
 package com.bootcamp.retailclient.controller;
 
-
 import com.bootcamp.retailclient.model.RetailClient;
 import com.bootcamp.retailclient.service.RetailClientService;
 import lombok.RequiredArgsConstructor;
