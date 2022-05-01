@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -63,20 +64,43 @@ public class RetailClientController {
 
     @GetMapping("/getProducts/{idClient}")
     public Flux<ProductsReport> getProducts(@PathVariable("idClient") String idClient){
-        ProductsReport report = new ProductsReport();
         WebClient  webClient = WebClient.create(gtWaySrv);
-//        var savingAccounts = Mono.from(Mono.from(webClient.get()
-        List<Integer> savAccLst=new ArrayList<>();
         logger.info("Saving Accounts");
-        webClient.get()
-                 .uri("/savingaccount/findAcountsByClientId/{id}",idClient)
-                 .retrieve()
-                 .bodyToFlux(Integer.class)
-                 .subscribe(savAccLst::add);
+        List<Integer> savAccLst=new ArrayList<>();
 
-        logger.info(savAccLst.toString());
-        report.setSavingAccountList(savAccLst);
-        return Flux.just(report);
+        var savingAccounts = webClient.get()
+                .uri("/savingaccount/findAcountsByClientId/{id}",idClient)
+                .retrieve().bodyToFlux(Integer.class)
+                .map(nc -> new ProductsReport(nc,"Saving Account"));
+
+        var currentAccounts = webClient.get()
+                .uri("/currentaccount/findAcountsByClientRuc/{id}",idClient)
+                .retrieve()
+                .bodyToFlux(Integer.class)
+                .map(nc -> new ProductsReport(nc,"Current Accounts"));
+
+        var fixedDepositAccounts = webClient.get()
+                .uri("/fixedDepositAccount/findAcountsByClientId/{id}",idClient)
+                .retrieve()
+                .bodyToFlux(Integer.class)
+                .map(nc -> new ProductsReport(nc,"Fixed Deposit Account"));
+
+        var creditCards = webClient.get()
+                .uri("/creditcard/findCreditCardByClientRuc/{id}",idClient)
+                .retrieve()
+                .bodyToFlux(Integer.class)
+                .map(nc -> new ProductsReport(nc,"Credit Cards"));
+
+        var credits = webClient.get()
+                .uri("/credit/findCreditByClientId/{id}",idClient)
+                .retrieve()
+                .bodyToFlux(Integer.class)
+                .map(nc -> new ProductsReport(nc,"Credits"));
+
+        return Flux.merge(savingAccounts,currentAccounts,fixedDepositAccounts,creditCards,credits);
     }
+
+
+
 
 }
