@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 
 public class ProductsReport {
-    private Integer ProductNumber;
+    private String ProductNumber;
     private String tipoProducto;
 }

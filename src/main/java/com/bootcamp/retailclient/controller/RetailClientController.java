@@ -24,9 +24,7 @@ import java.util.List;
 @RequestMapping("/retailclient")
 @RequiredArgsConstructor
 public class RetailClientController {
-//    @Value("${spring.cloud.gateway.url}")
-//    private String gtWaySrv;
-
+    private final Constants constants;
     public final RetailClientService service;
     Logger logger = LoggerFactory.getLogger(RetailClientController.class);
 
@@ -63,43 +61,40 @@ public class RetailClientController {
 
     @GetMapping("/getProducts/{idClient}")
     public Flux<ProductsReport> getProducts(@PathVariable("idClient") String idClient){
-        WebClient  webClient = WebClient.create(Constants.gwServer);
+        WebClient  webClient = WebClient.create(constants.getGatewayUrl());
         logger.info("Saving Accounts");
         List<Integer> savAccLst=new ArrayList<>();
 
         var savingAccounts = webClient.get()
                 .uri("/savingaccount/findAcountsByClientId/{id}",idClient)
-                .retrieve().bodyToFlux(Integer.class)
+                .retrieve().bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Saving Account"));
 
         var currentAccounts = webClient.get()
                 .uri("/currentaccount/findAcountsByClientRuc/{id}",idClient)
                 .retrieve()
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Current Accounts"));
 
         var fixedDepositAccounts = webClient.get()
-                .uri("/fixeddepositAccount/findAcountsByClientId/{id}",idClient)
+                .uri("/fixeddepositaccount/findAcountsByClientId/{id}",idClient)
                 .retrieve()
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Fixed Deposit Account"));
 
         var creditCards = webClient.get()
-                .uri("/creditcard/findCreditCardByClientRuc/{id}",idClient)
+                .uri("/creditcard/findCreditCardByClientId/{id}",idClient)
                 .retrieve()
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Credit Cards"));
 
         var credits = webClient.get()
                 .uri("/credit/findCreditByClientId/{id}",idClient)
                 .retrieve()
-                .bodyToFlux(Integer.class)
+                .bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Credits"));
 
         return Flux.merge(savingAccounts,currentAccounts,fixedDepositAccounts,creditCards,credits);
     }
-
-
-
 
 }

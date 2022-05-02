@@ -1,13 +1,13 @@
 package com.bootcamp.retailclient.util;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor
+@Component
+@Getter
 public class Constants {
     @Value("${constants.url.server}")
-    public static String gwServer;
+    private String gatewayUrl;
 
 }
