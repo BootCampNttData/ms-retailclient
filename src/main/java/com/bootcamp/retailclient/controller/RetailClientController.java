@@ -3,12 +3,11 @@ package com.bootcamp.retailclient.controller;
 import com.bootcamp.retailclient.model.ProductsReport;
 import com.bootcamp.retailclient.model.RetailClient;
 import com.bootcamp.retailclient.service.RetailClientService;
+import com.bootcamp.retailclient.util.Constants;
 import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -25,8 +24,8 @@ import java.util.List;
 @RequestMapping("/retailclient")
 @RequiredArgsConstructor
 public class RetailClientController {
-    @Value("${spring.cloud.gateway.url}")
-    private String gtWaySrv;
+//    @Value("${spring.cloud.gateway.url}")
+//    private String gtWaySrv;
 
     public final RetailClientService service;
     Logger logger = LoggerFactory.getLogger(RetailClientController.class);
@@ -64,7 +63,7 @@ public class RetailClientController {
 
     @GetMapping("/getProducts/{idClient}")
     public Flux<ProductsReport> getProducts(@PathVariable("idClient") String idClient){
-        WebClient  webClient = WebClient.create(gtWaySrv);
+        WebClient  webClient = WebClient.create(Constants.gwServer);
         logger.info("Saving Accounts");
         List<Integer> savAccLst=new ArrayList<>();
 
@@ -80,7 +79,7 @@ public class RetailClientController {
                 .map(nc -> new ProductsReport(nc,"Current Accounts"));
 
         var fixedDepositAccounts = webClient.get()
-                .uri("/fixedDepositAccount/findAcountsByClientId/{id}",idClient)
+                .uri("/fixeddepositAccount/findAcountsByClientId/{id}",idClient)
                 .retrieve()
                 .bodyToFlux(Integer.class)
                 .map(nc -> new ProductsReport(nc,"Fixed Deposit Account"));
