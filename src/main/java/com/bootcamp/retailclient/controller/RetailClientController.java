@@ -66,7 +66,7 @@ public class RetailClientController {
         List<Integer> savAccLst=new ArrayList<>();
 
         var savingAccounts = webClient.get()
-                .uri("/savingaccount/findAcountsByClientId/{id}",idClient)
+                .uri("/savingaccount/findAcountByClientId/{id}",idClient)
                 .retrieve().bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Saving Account"));
 
