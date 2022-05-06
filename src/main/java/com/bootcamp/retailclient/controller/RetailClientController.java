@@ -45,7 +45,7 @@ public class RetailClientController {
     @PostMapping
     public Mono<RetailClient> create(@RequestBody RetailClient retailClient){
         return Mono.just(retailClient)
-                .then(check(retailClient, sav -> Optional.of(sav).isEmpty(), "Retail Client has not data"))
+                .then(check(retailClient, sav -> Optional.of(sav).isEmpty(), "Retail Client has not data.!!!"))
                 .then(check(retailClient, sav -> ObjectUtils.isEmpty(sav.getDocumentId()), "Client Id is required"))
                 .then(findByDocumentId(retailClient.getDocumentId())
                         .<RetailClient>handle((record, sink) -> sink.error(new RetailClientValidationException("The Client already Exist")))
