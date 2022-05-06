@@ -1,5 +1,6 @@
 package com.bootcamp.retailclient.controller;
 
+import com.bootcamp.retailclient.exception.RetailClientValidationException;
 import com.bootcamp.retailclient.model.ProductsReport;
 import com.bootcamp.retailclient.model.RetailClient;
 import com.bootcamp.retailclient.service.RetailClientService;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,7 +19,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
+import java.util.function.Predicate;
 
 
 @RestController
@@ -35,13 +38,20 @@ public class RetailClientController {
     }
 
     @GetMapping("/find/{document}")
-    public Flux<RetailClient> findByDocumentId(@PathVariable("document") String document){
+    public Mono<RetailClient> findByDocumentId(@PathVariable("document") String document){
         return service.getByDocumentId(document);
     }
 
     @PostMapping
     public Mono<RetailClient> create(@RequestBody RetailClient retailClient){
-        return service.create(retailClient);
+        return Mono.just(retailClient)
+                .then(check(retailClient, sav -> Optional.of(sav).isEmpty(), "Retail Client has not data"))
+                .then(check(retailClient, sav -> ObjectUtils.isEmpty(sav.getDocumentId()), "Client Id is required"))
+                .then(findByDocumentId(retailClient.getDocumentId())
+                        .<RetailClient>handle((record, sink) -> sink.error(new RetailClientValidationException("The Client already Exist")))
+                        .switchIfEmpty(service.create(retailClient)))
+                ;
+
     }
 
     @PostMapping("/update")
@@ -65,7 +75,7 @@ public class RetailClientController {
         logger.info("Saving Accounts");
         List<Integer> savAccLst=new ArrayList<>();
 
-        var savingAccounts = webClient.get()
+        var retailClients = webClient.get()
                 .uri("/savingaccount/findAcountByClientId/{id}",idClient)
                 .retrieve().bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Saving Account"));
@@ -94,7 +104,18 @@ public class RetailClientController {
                 .bodyToFlux(String.class)
                 .map(nc -> new ProductsReport(nc,"Credits"));
 
-        return Flux.merge(savingAccounts,currentAccounts,fixedDepositAccounts,creditCards,credits);
+        return Flux.merge(retailClients,currentAccounts,fixedDepositAccounts,creditCards,credits);
+    }
+
+    private <T> Mono<Void> check(T retailClient, Predicate<T> predicate, String messageForException) {
+        return Mono.create(sink -> {
+            if (predicate.test(retailClient)) {
+                sink.error(new Exception(messageForException));
+                return;
+            } else {
+                sink.success();
+            }
+        });
     }
 
 }

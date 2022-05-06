@@ -39,7 +39,7 @@ public class RetailClientServiceImpl implements RetailClientService {
     }
 
     @Override
-    public Flux<RetailClient> getByDocumentId(String num) {
+    public Mono<RetailClient> getByDocumentId(String num) {
         return repository.findByDocumentId(num);
     }
 

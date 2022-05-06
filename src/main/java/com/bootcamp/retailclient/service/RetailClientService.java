@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 public interface RetailClientService {
     Flux<RetailClient> findAll();
-    Flux<RetailClient> getByDocumentId(String num);
+    Mono<RetailClient> getByDocumentId(String num);
     Mono<RetailClient> create(RetailClient retailClient);
     Mono<RetailClient> update(RetailClient retailClient);
     Mono<RetailClient> deleteById(String id);
