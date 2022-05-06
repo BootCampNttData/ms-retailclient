@@ -1,0 +1,63 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@master
+    
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create ACR
+      id: create-acr
+      run: |
+        az acr create -n BootcampNttData -g BootcampNttDatab18a-rg --location "West US 2" --sku Standard --admin-enabled
+        echo "::set-output name=acr_username::`az acr credential show -n BootcampNttData --query username | xargs`"
+        echo "::set-output name=acr_password::`az acr credential show -n BootcampNttData --query passwords[0].value | xargs`"
+        echo "::add-mask::`az acr credential show -n BootcampNttData --query passwords[0].value | xargs`"
+
+    - uses: azure/docker-login@v1
+      with:
+        login-server: bootcampnttdata.azurecr.io
+        username: ${{ steps.create-acr.outputs.acr_username }}
+        password: ${{ steps.create-acr.outputs.acr_password }}
+
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t bootcampnttdata.azurecr.io/bootcampakscluster:${{ github.sha }} --label dockerfile-path=Dockerfile
+        docker push bootcampnttdata.azurecr.io/bootcampakscluster:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      id: login
+      with:
+         kubeconfig: ${{ secrets.aks_bootcampakscluster_kubeConfig }}
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep bootcamp-aks-cluster866d | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace bootcamp-aks-cluster866d`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: bootcamp-aks-cluster866d
+        container-registry-url: bootcampnttdata.azurecr.io
+        container-registry-username: ${{ steps.create-acr.outputs.acr_username }}
+        container-registry-password: ${{ steps.create-acr.outputs.acr_password }}
+        secret-name: bootcampakscdockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: bootcamp-aks-cluster866d
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          bootcampnttdata.azurecr.io/bootcampakscluster:${{ github.sha }}
+        imagepullsecrets: |
+          bootcampakscdockerauth   
