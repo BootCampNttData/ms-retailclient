@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "bootcampakscluster-fa83"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "bootcampakscluster-fa83"
+  template:
+    metadata:
+      labels:
+        app: "bootcampakscluster-fa83"
+    spec:
+      containers:
+        - name: "bootcampakscluster-fa83"
+          image: "bootcampnttdata.azurecr.io/bootcampakscluster"
+          ports:
+          - containerPort: 6000
