@@ -1,0 +1,35 @@
+server:
+  port: 6000
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://dbuser:Passw0rd11235@cluster0.abvys.mongodb.net/RetailClientDB?retryWrites=true&w=majority
+  application:
+    name: retailclient
+
+#eureka:
+#  instance:
+#    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    serviceUrl:
+#      defaultZone: http://192.168.0.121:8761/eureka
+
+
+constants:
+  url:
+    server: http://localhost:6000
+
+
+
+
+
+
+#spring.cloud.config.enabled=true
+#spring.cloud.config.uri=http://192.168.0.121:8090
+
+#spring.cloud.gateway.url=http://localhost:8080
+
+
