@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: "bootcampakscluster-1a05"
+    labels:
+        app: "bootcampakscluster-1a05"
+spec:
+    type: LoadBalancer
+    ports:
+    - port: 6000
+      targetPort: 6000
+      protocol: TCP
+      name: http
+    selector:
+        app: "bootcampakscluster-1a05"
