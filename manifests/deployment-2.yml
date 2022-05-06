@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "bootcampakscluster-96ca"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "bootcampakscluster-96ca"
+  template:
+    metadata:
+      labels:
+        app: "bootcampakscluster-96ca"
+    spec:
+      containers:
+        - name: "bootcampakscluster-96ca"
+          image: "bootcampnttada.azurecr.io/bootcampakscluster"
+          ports:
+          - containerPort: 6000
